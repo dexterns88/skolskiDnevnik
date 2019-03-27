@@ -31,7 +31,6 @@ Route::group(['middleware' => ['jwt.verify']], function() {
      * Protected get
      */
     Route::get('user', 'UserController@getAuthenticatedUser');
-//    Route::get('closed', 'DataController@closed');
 
     /**
      * Protected post methods
