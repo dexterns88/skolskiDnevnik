@@ -30,12 +30,12 @@ Route::group(['middleware' => ['jwt.verify']], function() {
     /**
      * Protected get
      */
-    Route::get('user', 'UserController@getAuthenticatedUser');
+    Route::group(['middleware' => ['role.admin']], function() {
+        Route::post('register', 'UserController@register');
+    });
 
+    Route::get('user', 'UserController@getAuthenticatedUser');
     /**
      * Protected post methods
      */
-    Route::post('register', 'UserController@register');
-//    Route::post('product/create', 'ProductController@createProduct');
-//    Route::post('product/promote', 'ProductController@promoteProduct');
 });
