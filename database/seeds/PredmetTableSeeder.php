@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class PredmetTableSeeder extends Seeder
 {
@@ -11,6 +12,9 @@ class PredmetTableSeeder extends Seeder
      */
     public function run()
     {
-        //
+      DB::table('predmet')->insert([
+        ['name' => 'matematika'],
+        ['name' => 'srpski'],
+      ]);
     }
 }
