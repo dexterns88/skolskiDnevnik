@@ -34,6 +34,11 @@ Route::group(['middleware' => ['jwt.verify']], function() {
         Route::post('register', 'UserController@register');
     });
 
+    Route::group(['middleware' => ['role.teacher']], function () {
+        Route::get('predaje', 'PredmetController@predaje');
+        Route::get('predmet/studenti/{id}', 'PredmetController@studentiPredmeta');
+    });
+
     Route::get('user', 'UserController@getAuthenticatedUser');
     /**
      * Protected post methods
