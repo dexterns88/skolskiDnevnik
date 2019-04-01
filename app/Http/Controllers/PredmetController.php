@@ -14,12 +14,18 @@ class PredmetController extends Controller
 
       $predmets = DB::table('predmet')
         ->join('predaje', 'predmet.id', '=', 'predaje.predmet_id')
-        ->join('users', 'predaje.user_id', '=', 'users.id')
-        ->WHERE('users.id', '=', 3)
-        ->select('predmet.id', 'predmet.name')
-        ->get();
+        ->join('users', 'predaje.user_id', '=', 'users.id');
 
-      return response()->json($predmets);
+
+      if ($user->role !== 'admin') {
+        $predmets->WHERE('users.id', '=', $user->id);
+      }
+
+      $predmets->select('predmet.id', 'predmet.name', 'users.firstName', 'users.lastName');
+
+      $result = $predmets->get();
+
+      return response()->json($result);
     }
 
     public function studentiPredmeta($id)
