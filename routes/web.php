@@ -14,3 +14,18 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+//Route::get('any', function () {
+//  return view('welcome');
+//});
+
+
+Route::any('/{any}', function () {
+  return view('welcome');
+})->where('any', '.*');
+
+
+//Route::any('(:any)/(:all?)', function($first, $rest=''){
+//  $page = $rest ? "{$first}/{$rest}" : $first;
+//  dd($page);
+//});
