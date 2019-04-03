@@ -16,6 +16,11 @@ use Illuminate\Http\Request;
 /*
  * Auth router
  */
+//Route::group(['middleware' => ['cors']], function() {
+//  Route::post('login', 'UserController@authenticate');
+//  Route::get('refresh', 'UserController@refresh');
+//});
+
 Route::post('login', 'UserController@authenticate');
 Route::get('refresh', 'UserController@refresh');
 
