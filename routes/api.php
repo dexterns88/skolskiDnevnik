@@ -44,7 +44,7 @@ Route::group(['middleware' => ['jwt.verify']], function() {
     Route::group(['middleware' => ['role.teacher']], function () {
         Route::get('predaje', 'PredmetController@predaje');
         Route::get('predmet/studenti/{id}', 'PredmetController@studentiPredmeta');
-//        Route::get('studenti/predmet/{id}', 'PredmetController@studentOnPredmet');
+        Route::get('predmet/ocene/{pohadjaId}', 'PredmetController@getOcene');
     });
 
     Route::get('user', 'UserController@getAuthenticatedUser');

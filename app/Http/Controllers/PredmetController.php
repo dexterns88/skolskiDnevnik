@@ -6,6 +6,7 @@ use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use JWTAuth;
+use PhpParser\Node\Expr\Cast\Object_;
 
 class PredmetController extends Controller
 {
@@ -48,6 +49,7 @@ class PredmetController extends Controller
       return count($predmets) > 0;
     }
 
+    // Return studente za predmet
     public function studentiPredmeta($id)
     {
       $predmet = $this->profesorPredaje($id);
@@ -62,8 +64,32 @@ class PredmetController extends Controller
           ['users.role', '=', 'student'],
           ['predmet.id', '=', $id],
         ])
+        ->select('users.id','users.firstName', 'users.lastName','predmet.name as predmet', 'pohadja.id as pohadjaId')
         ->get();
 
       return response()->json($studenti);
+    }
+
+    // Ocene ucenika po predmetu
+
+    // upis ocena za predmet
+    public function getOcene($pohadjaId)
+    {
+      $ocene = DB::table('users')
+        ->join('pohadja', 'users.id', '=', 'pohadja.user_id')
+        ->join('predmet', 'pohadja.predmet_id', '=' ,'predmet.id')
+        ->join('ocene', 'pohadja.predmet_id', '=','ocene.pohadja_id')
+        ->WHERE('pohadja.id', '=', 2)
+        ->select('users.firstName', 'users.lastName', 'predmet.name as predmet', 'ocene.ocena')
+        ->get();
+      
+      $result['firstName'] = $ocene[0]->firstName;
+      $result['lastName'] = $ocene[0]->lastName;
+      $result['predmet'] = $ocene[0]->predmet;
+      $result['ocene'] = [];
+      foreach($ocene as $key => $value) {
+        array_push($result['ocene'], $value->ocena);
+      }
+      return response()->json($result);
     }
 }
