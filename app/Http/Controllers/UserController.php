@@ -6,6 +6,7 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
@@ -83,5 +84,18 @@ class UserController extends Controller
         }
 
         return response()->json(compact('user'));
+    }
+
+    public function getAllUsers($role = false)
+    {
+      $users = DB::table('users')
+        ->select('firstName', 'lastName', 'email', 'role');
+      if($role) {
+        if(in_array($role, ['admin','student','teacher','parent'])) {
+          $users->WHERE('role', '=', $role);
+        }
+      }
+      $result = $users->get();
+      return response()->json($result);
     }
 }

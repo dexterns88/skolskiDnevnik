@@ -37,6 +37,8 @@ Route::group(['middleware' => ['jwt.verify']], function() {
      */
     Route::group(['middleware' => ['role.admin']], function() {
         Route::post('register', 'UserController@register');
+        Route::get('users', 'UserController@getAllUsers');
+        Route::get('users/{role}', 'UserController@getAllUsers');
     });
 
     Route::group(['middleware' => ['role.teacher']], function () {
