@@ -70,8 +70,6 @@ class PredmetController extends Controller
       return response()->json($studenti);
     }
 
-    // Ocene ucenika po predmetu
-
     // upis ocena za predmet
     public function getOcene($pohadjaId)
     {
@@ -79,16 +77,45 @@ class PredmetController extends Controller
         ->join('pohadja', 'users.id', '=', 'pohadja.user_id')
         ->join('predmet', 'pohadja.predmet_id', '=' ,'predmet.id')
         ->join('ocene', 'pohadja.predmet_id', '=','ocene.pohadja_id')
-        ->WHERE('pohadja.id', '=', 2)
+        ->WHERE('pohadja.id', '=', $pohadjaId)
         ->select('users.firstName', 'users.lastName', 'predmet.name as predmet', 'ocene.ocena')
         ->get();
-      
-      $result['firstName'] = $ocene[0]->firstName;
-      $result['lastName'] = $ocene[0]->lastName;
-      $result['predmet'] = $ocene[0]->predmet;
+
+
       $result['ocene'] = [];
       foreach($ocene as $key => $value) {
         array_push($result['ocene'], $value->ocena);
+      }
+      return response()->json($result);
+    }
+
+    public function getPredmeteOcena($studentId)
+    {
+      $ocene = DB::table('users')
+        ->join('pohadja', 'users.id', '=', 'pohadja.user_id')
+        ->join('ocene', 'pohadja.id', '=','ocene.pohadja_id')
+        ->join('predmet', 'pohadja.predmet_id', '=' ,'predmet.id')
+        ->WHERE('users.id', '=', $studentId)
+        ->select('users.firstName', 'users.lastName', 'predmet.name as predmet', 'ocene.ocena')
+        ->get();
+
+      if(count($ocene) === 0) {
+        return response()->json([], 204);
+      }
+
+
+      $result['firstName'] = $ocene[0]->firstName;
+      $result['lastName'] = $ocene[0]->lastName;
+      $result['predmeti'] = [];
+
+      foreach($ocene as $key => $value) {
+
+        if (isset($result['predmeti'][$value->predmet])) {
+          array_push($result['predmeti'][$value->predmet], $value->ocena);
+        } else {
+          $result['predmeti'][$value->predmet] = [];
+          array_push($result['predmeti'][$value->predmet], $value->ocena);
+        }
       }
       return response()->json($result);
     }

@@ -32,6 +32,8 @@ Route::get('refresh', 'UserController@refresh');
  * JWT protected
  */
 Route::group(['middleware' => ['jwt.verify']], function() {
+    Route::get('user', 'UserController@getAuthenticatedUser');
+
     /**
      * Protected get
      */
@@ -47,7 +49,9 @@ Route::group(['middleware' => ['jwt.verify']], function() {
         Route::get('predmet/ocene/{pohadjaId}', 'PredmetController@getOcene');
     });
 
-    Route::get('user', 'UserController@getAuthenticatedUser');
+    Route::group(['middleware' => ['role.student']], function() {
+      Route::get('ocene/{uid}', 'PredmetController@getPredmeteOcena');
+    });
     /**
      * Protected post methods
      */
