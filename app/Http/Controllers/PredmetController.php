@@ -81,6 +81,9 @@ class PredmetController extends Controller
         ->select('users.firstName', 'users.lastName', 'predmet.name as predmet', 'ocene.ocena')
         ->get();
 
+      if(count($ocene) === 0) {
+        return response()->json([], 204);
+      }
 
       $result['ocene'] = [];
       foreach($ocene as $key => $value) {
