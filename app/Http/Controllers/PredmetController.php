@@ -30,7 +30,7 @@ class PredmetController extends Controller
       return response()->json($result);
     }
 
-    protected function profesorPredaje($predmetId) {
+    protected function ifProfesorPredaje($predmetId) {
       $user = JWTAuth::parseToken()->authenticate();
 
       if ($user->role === 'admin') {
@@ -50,9 +50,9 @@ class PredmetController extends Controller
     }
 
     // Return studente za predmet
-    public function studentiPredmeta($id)
+    public function studentiPredmeta($predmetId)
     {
-      $predmet = $this->profesorPredaje($id);
+      $predmet = $this->ifProfesorPredaje($predmetId);
       if(!$predmet) {
         return response()->json(['error'=> 'Nema dostupnog predmeta za ovog profesora'], 404);
       }
@@ -62,9 +62,9 @@ class PredmetController extends Controller
         ->join('predmet', 'pohadja.predmet_id', '=' ,'predmet.id')
         ->WHERE([
           ['users.role', '=', 'student'],
-          ['predmet.id', '=', $id],
+          ['predmet.id', '=', $predmetId],
         ])
-        ->select('users.id','users.firstName', 'users.lastName','predmet.name as predmet', 'pohadja.id as pohadjaId')
+        ->select('users.id as uid','users.firstName', 'users.lastName','predmet.name as predmet', 'pohadja.id as pohadjaId')
         ->get();
 
       return response()->json($studenti);
@@ -85,6 +85,9 @@ class PredmetController extends Controller
         return response()->json([], 204);
       }
 
+      $result['firstName'] = $ocene[0]->firstName;
+      $result['lastName'] = $ocene[0]->lastName;
+      $result['predmet'] = $ocene[0]->predmet;
       $result['ocene'] = [];
       foreach($ocene as $key => $value) {
         array_push($result['ocene'], $value->ocena);
@@ -121,5 +124,56 @@ class PredmetController extends Controller
         }
       }
       return response()->json($result);
+    }
+
+    public function isStudentPohadja($uid, $pohadja_id) {
+      $userPohadja = DB::table('users')
+        ->join('pohadja', 'users.id', '=', 'pohadja.user_id')
+        ->join('predmet', 'pohadja.predmet_id', '=' ,'predmet.id')
+        ->WHERE([
+          ['pohadja.id','=', $pohadja_id],
+          ['users.id', '=', $uid],
+        ])
+        ->select('users.firstName', 'users.lastName', 'predmet.name as predmet')
+        ->get();
+      return $userPohadja;
+
+//      return count($userPohadja) > 0;
+    }
+
+    public function oceni(Request $request)
+    {
+        $enumOcene = [1,2,3,4,5];
+
+        $uid = $request->get('uid');
+        $pohadjaId = $request->get('pohadja_id');
+        $ocena = $request->get('ocena');
+
+        // validacija ocene
+        if (!in_array($ocena, $enumOcene)) {
+          return response()->json(['error' => 'ocena mora da bude izmedju 1 i 5'], 400);
+        }
+
+        // validacija da li student slusa predmet
+        $ifPohadja = $this->isStudentPohadja($uid,$pohadjaId);
+
+        if (count($ifPohadja) === 0) {
+          return response()->json(['error' => 'student ne pohadja predmet'], 403);
+        }
+
+        $result = DB::table('ocene')->insert([
+          'pohadja_id' => $pohadjaId,
+          'ocena' => $ocena,
+        ]);
+
+        if ($result) {
+          $out['firstName'] = $ifPohadja[0]->firstName;
+          $out['lastName'] = $ifPohadja[0]->lastName;
+          $out['predmet'] = $ifPohadja[0]->predmet;
+          $out['ocena'] = $ocena;
+          return response()->json($out, 201);
+        } else {
+          return response()->json(['error' => 'Doslo je do serverske greske'], 500);
+        }
     }
 }
