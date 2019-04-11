@@ -91,7 +91,7 @@ class UserController extends Controller
     public function getAllUsers($role = false)
     {
       $users = DB::table('users')
-        ->select('firstName', 'lastName', 'email', 'role');
+        ->select('firstName', 'lastName', 'email', 'role', 'id');
       if($role) {
         if(in_array($role, ['admin','student','teacher','parent'])) {
           $users->WHERE('role', '=', $role);
