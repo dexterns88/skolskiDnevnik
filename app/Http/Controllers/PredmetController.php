@@ -75,10 +75,10 @@ class PredmetController extends Controller
     {
       $ocene = DB::table('users')
         ->join('pohadja', 'users.id', '=', 'pohadja.user_id')
+        ->join('ocene', 'pohadja.id', '=','ocene.pohadja_id')
         ->join('predmet', 'pohadja.predmet_id', '=' ,'predmet.id')
-        ->join('ocene', 'pohadja.predmet_id', '=','ocene.pohadja_id')
         ->WHERE('pohadja.id', '=', $pohadjaId)
-        ->select('users.firstName', 'users.lastName', 'predmet.name as predmet', 'ocene.ocena')
+        ->select('users.firstName', 'users.lastName', 'predmet.name as predmet', 'ocene.ocena', 'pohadja.predmet_id')
         ->get();
 
       if(count($ocene) === 0) {
