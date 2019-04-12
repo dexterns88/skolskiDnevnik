@@ -100,4 +100,63 @@ class UserController extends Controller
       $result = $users->get();
       return response()->json($result);
     }
+
+    public function deleteUser($id) {
+      if (!isset($id)) {
+        return response()->json(['error' => 'user id is requred'], 400);
+      } else if ($id == 1) {
+        return response()->json(['error' => 'Can`t delete super admin'], 400);
+      }
+
+      $users = User::find($id);
+
+      if ($users) {
+        $result = $users->delete();
+        return response()->json($result);
+      } else {
+        return response()->json(['error' => 'selected user doesn`t exist'], 403);
+      }
+    }
+
+    public function updateUser(Request $request) {
+      $id = $request->get('id');
+      $firstName = $request->get('firstName');
+      $lastName = $request->get('lastName');
+      $email = $request->get('email');
+      $role = $request->get('role');
+
+      $validator = Validator::make($request->all(), [
+        'email' => 'string|email|max:255|unique:users',
+        'role' => 'in:admin,student,teacher,parent', //validate role input
+      ]);
+
+      if($validator->fails()){
+        return response()->json($validator->errors(), 400);
+      }
+
+      $user = User::find($id);
+
+      if(!$user) {
+        return response()->json(['error' => 'selected user doesn`t exist'], 403);
+      }
+
+      if($firstName) {
+        $user->firstName = $firstName;
+      }
+
+      if($lastName) {
+        $user->lastName = $lastName;
+      }
+
+      if($email) {
+        $user->email = $email;
+      }
+
+      if($role) {
+        $user->role = $role;
+      }
+
+      $user->save();
+      return response()->json(compact('user'),201);
+    }
 }
