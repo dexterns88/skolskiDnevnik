@@ -135,7 +135,7 @@ class PredmetController extends Controller
           ['pohadja.id','=', $pohadja_id],
           ['users.id', '=', $uid],
         ])
-        ->select('users.id as uid, users.firstName', 'users.lastName', 'predmet.name as predmet')
+        ->select('users.firstName', 'users.lastName', 'predmet.name as predmet')
         ->get();
       return $userPohadja;
 
