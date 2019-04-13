@@ -78,7 +78,7 @@ class PredmetController extends Controller
         ->join('ocene', 'pohadja.id', '=','ocene.pohadja_id')
         ->join('predmet', 'pohadja.predmet_id', '=' ,'predmet.id')
         ->WHERE('pohadja.id', '=', $pohadjaId)
-        ->select('users.firstName', 'users.lastName', 'predmet.name as predmet', 'ocene.ocena', 'pohadja.predmet_id')
+        ->select('users.id as uid', 'users.firstName', 'users.lastName', 'predmet.name as predmet', 'ocene.ocena', 'pohadja.predmet_id')
         ->get();
 
       if(count($ocene) === 0) {
@@ -88,6 +88,7 @@ class PredmetController extends Controller
       $result['firstName'] = $ocene[0]->firstName;
       $result['lastName'] = $ocene[0]->lastName;
       $result['predmet'] = $ocene[0]->predmet;
+      $result['uid'] = $ocene[0]->uid;
       $result['ocene'] = [];
       foreach($ocene as $key => $value) {
         array_push($result['ocene'], $value->ocena);
